@@ -10,3 +10,11 @@ def client():
     )
     client.connect(ADDR)
     return client
+
+
+def test_response_ok():
+    pass
+
+
+def test_response_error():
+    pass
