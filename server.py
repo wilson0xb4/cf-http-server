@@ -2,7 +2,6 @@ import socket
 
 ADDR = ('127.0.0.1', 8001)
 OK_REQUEST = b"GET / HTTP/1.1"
-ERROR_REQUEST = b"Hey man how's it going"
 RESPONSE_200 = (b"HTTP/1.1 200 OK\r\n"
                 b"Content-Type: text/html\r\n"
                 b"Accept-Ranges: bytes\r\n"
