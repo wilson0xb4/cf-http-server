@@ -3,8 +3,16 @@ import socket
 ADDR = ('127.0.0.1', 8001)
 OK_REQUEST = b"GET / HTTP/1.1"
 ERROR_REQUEST = b"Hey man how's it going"
-RESPONSE_200 = b"HTTP/1.1 200 OK"
-RESPONSE_500 = b"HTTP/1.1 500 Internal Server Error"
+RESPONSE_200 = (b"HTTP/1.1 200 OK\r\n"
+                b"Content-Type: text/html\r\n"
+                b"Accept-Ranges: bytes\r\n"
+                b"\r\n"
+                b"Hello world!")
+RESPONSE_500 = (b"HTTP/1.1 500 Internal Server Error\r\n"
+                b"Content-Type: text/plain\r\n"
+                b"Content-Length: 58\r\n"
+                b"\r\n"
+                b"The server encountered an unexpected internal server error")
 
 
 def response_ok():
@@ -34,16 +42,10 @@ def start_server():
             conn, addr = server.accept()
             request = conn.recv(1024)
             if request == OK_REQUEST:
-                conn.sendall(RESPONSE_200)
+                conn.sendall(response_ok())
             else:
-                conn.sendall(RESPONSE_500)
+                conn.sendall(response_error())
 
-            # while True:
-            #     msg = conn.recv(16)
-            #     conn.sendall(msg)
-            #     if len(msg) < 16:
-            #         conn.close()
-            #         break
         except KeyboardInterrupt:
             break
 
