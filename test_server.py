@@ -3,10 +3,10 @@ import socket
 import server
 
 ADDR = ('127.0.0.1', 8001)
-OK_REQUEST = "GET / HTTP/1.1"
-ERROR_REQUEST = "Hey man how's it going"
-RESPONSE_200 = "HTTP/1.1 200 OK"
-RESPONSE_500 = "HTTP/1.1 500 Internal Server Error"
+OK_REQUEST = b"GET / HTTP/1.1"
+ERROR_REQUEST = b"Hey man how's it going"
+RESPONSE_200 = b"HTTP/1.1 200 OK"
+RESPONSE_500 = b"HTTP/1.1 500 Internal Server Error"
 
 @pytest.fixture()
 def client():
