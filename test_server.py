@@ -8,12 +8,7 @@ from multiprocessing import Process
 def server_process():
     process = Process(target=server.start_server)
     process.daemon = True
-    print os.getpid()
     process.start()
-    print os.getppid()
-    print os.getpid()
-    process.join()
-    return process
 
 @pytest.fixture()
 def client(server_process):
