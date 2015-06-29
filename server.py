@@ -20,7 +20,9 @@ def config_server():
     server.listen(1)
     return server
 
-if __name__ == "__main__":
+
+def start_server():
+    print "starting server"
     server = config_server()
 
     while True:
@@ -34,3 +36,6 @@ if __name__ == "__main__":
                     break
         except KeyboardInterrupt:
             break
+
+if __name__ == "__main__":
+    start_server()
