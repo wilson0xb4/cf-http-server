@@ -25,6 +25,43 @@ def response_error():
     return RESPONSE_500
 
 
+def verify_first_line(line):
+    if b'GET' not in line or b'HTTP/1.1' not in line:
+        raise SyntaxError
+
+
+def verify_blank_line(rq):
+    if CRLF+CRLF not in rq:
+        raise SyntaxError
+
+
+def verify_host(header_dict):
+    if b'Host' not in header_dict.keys():
+        raise KeyError
+
+
+def parse_request(rq):
+    verify_blank_line(rq)
+    header_dict = {}
+    lines = rq.split(CRLF)
+    first = lines[0]
+    lines = lines[1:]
+    verify_first_line(first)
+    temp = ''
+    for line in lines:
+        if b':' in line:
+            header = line.split(b':')
+            temp = header[0]
+            header_dict[header[0]] = header[1:]
+        else:
+            header_dict[temp].append(line)
+
+    verify_host(header_dict)
+
+    #get uri from first line of request
+    return first.split()[1]
+
+
 def config_server():
     """Configure server: create socket, bind and set to listen."""
     server = socket.socket(

@@ -10,7 +10,7 @@ def server_process():
     process = Process(target=server.start_server)
     process.daemon = True
     process.start()
-    time.sleep(0.001)
+    time.sleep(0.1)
     yield process
 
 
@@ -61,19 +61,34 @@ def test_parse_request():
     }
 
     expects = {
-        'good': '/',
-        'bad': ValueError,
-        'long': '/path/to/a/thing',
-        'post': AttributeError
+        'good': b'/',
+        'bad': SyntaxError,
+        'long': b'/path/to/a/thing',
+        'post': SyntaxError
     }
 
-    for key, request in requests.iteritems():
-        request_text = server.CRLF.join(request)
-        if key in ('good', 'long'):
-            assert server.parse_request(request_text) == expects[key]
-        else:
-            with pytest.raises(expects[key]):
-                server.parse_request(request_text)
+    request_text = server.CRLF.join(requests['good'])
+    assert server.parse_request(request_text) == expects['good']
+
+    request_text = server.CRLF.join(requests['bad'])
+    with pytest.raises(expects['bad']):
+        server.parse_request(request_text)
+
+    request_text = server.CRLF.join(requests['long'])
+    assert server.parse_request(request_text) == expects['long']
+
+    request_text = server.CRLF.join(requests['post'])
+    with pytest.raises(expects['post']):
+        server.parse_request(request_text)
+    #
+    # for key, request in requests.iteritems():
+    #     request_text = server.CRLF.join(request)
+    #     if key in ('good', 'long'):
+    #         assert server.parse_request(request_text) == expects[key]
+    #     else:
+    #         print key
+    #         with pytest.raises(expects[key]):
+    #             server.parse_request(request_text)
 
 
 def test_functional_ok(client):
