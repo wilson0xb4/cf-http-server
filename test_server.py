@@ -1,6 +1,7 @@
 import pytest
 import socket
 import server
+import time
 from multiprocessing import Process
 
 
@@ -9,11 +10,12 @@ def server_process():
     process = Process(target=server.start_server)
     process.daemon = True
     process.start()
+    time.sleep(0.001)
     yield process
 
 
 @pytest.fixture()
-def client():
+def client(server_process):
     client = socket.socket(
         socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_IP
     )
@@ -22,7 +24,7 @@ def client():
     return client
 
 
-def test_response_ok(server_process):
+def test_response_ok():
     response = server.response_ok().split(b'\r\n')
     assert b"HTTP/1.1 200 OK" in response[0]
     assert b"Content-Type: text/html" in response
