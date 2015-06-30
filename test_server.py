@@ -36,6 +36,46 @@ def test_response_error():
     assert b"Content-Type: text/plain" in response
 
 
+def test_parse_request():
+    requests = {
+        'good': [
+            b'GET / HTTP/1.1',
+            b'Host: www.example.com',
+            server.CRLF
+        ],
+        'bad': [
+            b'Hi there'
+        ],
+        'long': [
+            b'GET /path/to/a/thing HTTP/1.1',
+            b'Host: www.longerexample.com:80',
+            b'Content-Type: text/xml; charset=utf-8',
+            b'Content-Length: 100',
+            server.CRLF
+        ],
+        'post': [
+            b'POST / HTTP/1.1',
+            b'Host: www.example.com',
+            server.CRLF
+        ]
+    }
+
+    expects = {
+        'good': '/',
+        'bad': ValueError,
+        'long': '/path/to/a/thing',
+        'post': AttributeError
+    }
+
+    for key, request in requests.iteritems():
+        request_text = server.CRLF.join(request)
+        if key in ('good', 'long'):
+            assert server.parse_request(request_text) == expects[key]
+        else:
+            with pytest.raises(expects[key]):
+                server.parse_request(request_text)
+
+
 def test_functional_ok(client):
     client.sendall(server.OK_REQUEST)
     accum = []

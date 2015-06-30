@@ -1,5 +1,6 @@
 import socket
 
+CRLF = b'\r\n'
 ADDR = ('127.0.0.1', 8002)
 OK_REQUEST = b"GET / HTTP/1.1"
 RESPONSE_200 = (b"HTTP/1.1 200 OK\r\n"
