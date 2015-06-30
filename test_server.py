@@ -57,14 +57,20 @@ def test_parse_request():
             b'POST / HTTP/1.1',
             b'Host: www.example.com',
             server.CRLF
-        ]
+        ],
+        'wrong_http': [
+            b'GET / HTTP/1.0',
+            b'Host: www.example.com',
+            server.CRLF
+        ],
     }
 
     expects = {
         'good': b'/',
         'bad': SyntaxError,
         'long': b'/path/to/a/thing',
-        'post': SyntaxError
+        'post': NotImplementedError,
+        'wrong_http': ValueError
     }
 
     request_text = server.CRLF.join(requests['good'])
@@ -79,6 +85,10 @@ def test_parse_request():
 
     request_text = server.CRLF.join(requests['post'])
     with pytest.raises(expects['post']):
+        server.parse_request(request_text)
+
+    request_text = server.CRLF.join(requests['wrong_http'])
+    with pytest.raises(expects['wrong_http']):
         server.parse_request(request_text)
     #
     # for key, request in requests.iteritems():

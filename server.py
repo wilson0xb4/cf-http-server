@@ -8,11 +8,10 @@ RESPONSE_200 = (b"HTTP/1.1 200 OK\r\n"
                 b"Accept-Ranges: bytes\r\n"
                 b"\r\n"
                 b"Hello world!")
-RESPONSE_500 = (b"HTTP/1.1 500 Internal Server Error\r\n"
-                b"Content-Type: text/plain\r\n"
-                b"Content-Length: 58\r\n"
-                b"\r\n"
-                b"The server encountered an unexpected internal server error")
+RESPONSE = [
+    b"HTTP/1.1 {code} {reason}",
+    b"Content-Type: text/plain",
+    CRLF]
 
 
 def response_ok():
@@ -20,24 +19,27 @@ def response_ok():
     return RESPONSE_200
 
 
-def response_error():
+def response_error(code, reason):
     """Return a properly formatted HTTP 500 response."""
-    return RESPONSE_500
+    response = CRLF.join(RESPONSE)
+    return response.format(code=code, reason=reason)
 
 
 def verify_first_line(line):
-    if b'GET' not in line or b'HTTP/1.1' not in line:
-        raise SyntaxError
+    if b'GET' not in line:
+        raise NotImplementedError("Not a GET request.")
+    if b'HTTP/1.1' not in line:
+        raise ValueError("Wrong version.")
 
 
 def verify_blank_line(rq):
     if CRLF+CRLF not in rq:
-        raise SyntaxError
+        raise SyntaxError("Missing blank line.")
 
 
 def verify_host(header_dict):
     if b'Host' not in header_dict.keys():
-        raise KeyError
+        raise KeyError("Host header not found.")
 
 
 def parse_request(rq):
@@ -93,10 +95,22 @@ def start_server():
                     break
             request_text = b''.join(accum)
             print request_text
-            if OK_REQUEST in request_text:
-                conn.sendall(response_ok())
-            else:
-                conn.sendall(response_error())
+
+            response = response_ok()
+
+            try:
+                parse_request(request_text)
+            except SyntaxError as e:
+                response = response_error(400, e.message)
+            except NotImplementedError as e:
+                response = response_error(405, e.message)
+            except KeyError as e:
+                response = response_error(400, e.message)
+            except ValueError as e:
+                response = response_error(500, e.message)
+
+            conn.sendall(response)
+
             conn.close()
 
         except KeyboardInterrupt:
