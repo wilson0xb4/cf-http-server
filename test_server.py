@@ -38,9 +38,9 @@ def test_functional_ok(client):
     client.sendall(server.OK_REQUEST)
     accum = []
     while True:
-        response = client.recv(16)
+        response = client.recv(1024)
         accum.append(response)
-        if len(response) < 16:
+        if len(response) < 1024:
             break
     response_str = b''.join(accum)
     assert b"HTTP/1.1 200 OK" in response_str

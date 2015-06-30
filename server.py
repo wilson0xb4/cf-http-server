@@ -15,14 +15,17 @@ RESPONSE_500 = (b"HTTP/1.1 500 Internal Server Error\r\n"
 
 
 def response_ok():
+    """Return a properly formatted HTTP 200 response."""
     return RESPONSE_200
 
 
 def response_error():
+    """Return a properly formatted HTTP 500 response."""
     return RESPONSE_500
 
 
 def config_server():
+    """Configure server: create socket, bind and set to listen."""
     server = socket.socket(
         socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_IP
     )
@@ -34,6 +37,11 @@ def config_server():
 
 
 def start_server():
+    """Start server and begin loop to accept requests.
+
+    While in loop, server will respond to appropriate HTTP requests with
+    a valid resonpse, logging requests to standard out.
+    """
     server = config_server()
     accum = []
 
@@ -41,9 +49,9 @@ def start_server():
         try:
             conn, addr = server.accept()
             while True:
-                request = conn.recv(16)
+                request = conn.recv(1024)
                 accum.append(request)
-                if len(request) < 16:
+                if len(request) < 1024:
                     break
             request_text = b''.join(accum)
             print request_text
