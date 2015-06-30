@@ -41,7 +41,8 @@ def start_server():
         try:
             conn, addr = server.accept()
             request = conn.recv(1024)
-            if request == OK_REQUEST:
+            print request
+            if OK_REQUEST in request:
                 conn.sendall(response_ok())
             else:
                 conn.sendall(response_error())
