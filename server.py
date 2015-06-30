@@ -34,18 +34,24 @@ def config_server():
 
 
 def start_server():
-    print "starting server"
     server = config_server()
+    accum = []
 
     while True:
         try:
             conn, addr = server.accept()
-            request = conn.recv(1024)
-            print request
-            if OK_REQUEST in request:
+            while True:
+                request = conn.recv(16)
+                accum.append(request)
+                if len(request) < 16:
+                    break
+            request_text = b''.join(accum)
+            print request_text
+            if OK_REQUEST in request_text:
                 conn.sendall(response_ok())
             else:
                 conn.sendall(response_error())
+            conn.close()
 
         except KeyboardInterrupt:
             break

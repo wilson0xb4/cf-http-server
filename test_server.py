@@ -3,12 +3,14 @@ import socket
 import server
 from multiprocessing import Process
 
+
 @pytest.yield_fixture
 def server_process():
     process = Process(target=server.start_server)
     process.daemon = True
     process.start()
     yield process
+
 
 @pytest.fixture()
 def client():
@@ -21,14 +23,24 @@ def client():
 
 
 def test_response_ok(server_process):
-    assert server.response_ok() == server.RESPONSE_200
+    response = server.response_ok().split(b'\r\n')
+    assert b"HTTP/1.1 200 OK" in response[0]
+    assert b"Content-Type: text/html" in response
 
 
 def test_response_error():
-    assert server.response_error() == server.RESPONSE_500
+    response = server.response_error().split(b'\r\n')
+    assert b"HTTP/1.1 500 Internal Server Error" in response[0]
+    assert b"Content-Type: text/plain" in response
 
 
 def test_functional_ok(client):
     client.sendall(server.OK_REQUEST)
-    response = client.recv(1024)
-    assert response == server.RESPONSE_200
+    accum = []
+    while True:
+        response = client.recv(16)
+        accum.append(response)
+        if len(response) < 16:
+            break
+    response_str = b''.join(accum)
+    assert b"HTTP/1.1 200 OK" in response_str
