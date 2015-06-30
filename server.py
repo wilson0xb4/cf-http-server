@@ -1,6 +1,6 @@
 import socket
 
-ADDR = ('127.0.0.1', 8001)
+ADDR = ('127.0.0.1', 8002)
 OK_REQUEST = b"GET / HTTP/1.1"
 RESPONSE_200 = (b"HTTP/1.1 200 OK\r\n"
                 b"Content-Type: text/html\r\n"
@@ -26,6 +26,7 @@ def config_server():
     server = socket.socket(
         socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_IP
     )
+    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
     server.bind(ADDR)
     server.listen(1)

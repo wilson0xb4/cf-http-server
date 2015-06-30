@@ -1,17 +1,17 @@
 import pytest
 import socket
 import server
-import os
 from multiprocessing import Process
 
-@pytest.fixture()
+@pytest.yield_fixture(scope='session')
 def server_process():
     process = Process(target=server.start_server)
     process.daemon = True
     process.start()
+    yield process
 
 @pytest.fixture()
-def client(server_process):
+def client():
     client = socket.socket(
         socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_IP
     )
@@ -20,7 +20,7 @@ def client(server_process):
     return client
 
 
-def test_response_ok():
+def test_response_ok(server_process):
     assert server.response_ok() == server.RESPONSE_200
 
 
