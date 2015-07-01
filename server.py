@@ -2,7 +2,6 @@ import socket
 
 CRLF = b'\r\n'
 ADDR = ('127.0.0.1', 8002)
-OK_REQUEST = b"GET / HTTP/1.1"
 RESPONSE_200 = (b"HTTP/1.1 200 OK\r\n"
                 b"Content-Type: text/html\r\n"
                 b"Accept-Ranges: bytes\r\n"
@@ -11,7 +10,8 @@ RESPONSE_200 = (b"HTTP/1.1 200 OK\r\n"
 RESPONSE = [
     b"HTTP/1.1 {code} {reason}",
     b"Content-Type: text/plain",
-    CRLF]
+    CRLF,
+    b"{message}"]
 
 
 def response_ok():
@@ -22,24 +22,24 @@ def response_ok():
 def response_error(code, reason):
     """Return a properly formatted HTTP 500 response."""
     response = CRLF.join(RESPONSE)
-    return response.format(code=code, reason=reason)
+    return response.format(code=code, reason=reason, message=b'')
 
 
 def verify_first_line(line):
     if b'GET' not in line:
-        raise NotImplementedError("Not a GET request.")
+        raise NotImplementedError(b"Method Not Allowed")
     if b'HTTP/1.1' not in line:
-        raise ValueError("Wrong version.")
+        raise ValueError(b"Forbidden")
 
 
 def verify_blank_line(rq):
     if CRLF+CRLF not in rq:
-        raise SyntaxError("Missing blank line.")
+        raise SyntaxError(b"Bad Request")
 
 
 def verify_host(header_dict):
     if b'Host' not in header_dict.keys():
-        raise KeyError("Host header not found.")
+        raise KeyError(b"Bad Request")
 
 
 def parse_request(rq):
@@ -107,7 +107,7 @@ def start_server():
             except KeyError as e:
                 response = response_error(400, e.message)
             except ValueError as e:
-                response = response_error(500, e.message)
+                response = response_error(403, e.message)
 
             conn.sendall(response)
 
