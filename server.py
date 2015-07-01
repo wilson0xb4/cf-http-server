@@ -25,6 +25,10 @@ def response_error(code, reason):
 
 
 def verify_first_line(line):
+    """Verify that the first line of the request is a GET request and
+    using HTTP/1.1
+    """
+
     if b'GET' not in line:
         raise NotImplementedError(b"Method Not Allowed")
     if b'HTTP/1.1' not in line:
@@ -32,16 +36,32 @@ def verify_first_line(line):
 
 
 def verify_blank_line(rq):
+    """Verify there is a blank line in the request.
+
+    Will be at the end or between the headers and the body.
+    """
+
     if CRLF+CRLF not in rq:
         raise SyntaxError(b"Bad Request")
 
 
 def verify_host(header_dict):
+    """Verify that the Host header is in the request."""
     if b'Host' not in header_dict.keys():
         raise KeyError(b"Bad Request")
 
 
 def parse_request(rq):
+    """Parse the request from the client and return the URI if valid.
+
+    Valid request returns URI if all are True:
+        - Only accept GET requests
+        - Only accept HTTP/1.1 requests
+        - Must include Host header
+    Otherwise, exception is raised and the reason code is passed with
+    the exception.
+    """
+
     verify_blank_line(rq)
     header_dict = {}
     lines = rq.split(CRLF)
@@ -59,7 +79,7 @@ def parse_request(rq):
 
     verify_host(header_dict)
 
-    #get uri from first line of request
+    # get uri from first line of request
     return first.split()[1]
 
 
