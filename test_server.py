@@ -5,7 +5,7 @@ import time
 from multiprocessing import Process
 
 
-@pytest.fixture()
+@pytest.fixture(scope='session')
 def server_process(request):
     process = Process(target=server.start_server)
     process.daemon = True
@@ -16,7 +16,6 @@ def server_process(request):
         process.terminate()
 
     request.addfinalizer(cleanup)
-
     return process
 
 
