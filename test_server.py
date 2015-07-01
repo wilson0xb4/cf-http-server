@@ -93,21 +93,29 @@ def test_response_error():
     assert b"Content-Type: text/plain" in response
 
 
-def test_parse_request(requests, expects):
+def test_parse_request_good(requests, expects):
     request_text = server.CRLF.join(requests['good'])
     assert server.parse_request(request_text) == expects['good']
 
+
+def test_parse_request_bad(requests, expects):
     request_text = server.CRLF.join(requests['bad'])
     with pytest.raises(expects['bad']):
         server.parse_request(request_text)
 
+
+def test_parse_request_long(requests, expects):
     request_text = server.CRLF.join(requests['long'])
     assert server.parse_request(request_text) == expects['long']
 
+
+def test_parse_request_post(requests, expects):
     request_text = server.CRLF.join(requests['post'])
     with pytest.raises(expects['post']):
         server.parse_request(request_text)
 
+
+def test_parse_request_wrong_http(requests, expects):
     request_text = server.CRLF.join(requests['wrong_http'])
     with pytest.raises(expects['wrong_http']):
         server.parse_request(request_text)
