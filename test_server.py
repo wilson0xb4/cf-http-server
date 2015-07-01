@@ -112,15 +112,6 @@ def test_parse_request(requests, expects):
     request_text = server.CRLF.join(requests['wrong_http'])
     with pytest.raises(expects['wrong_http']):
         server.parse_request(request_text)
-    #
-    # for key, request in requests.iteritems():
-    #     request_text = server.CRLF.join(request)
-    #     if key in ('good', 'long'):
-    #         assert server.parse_request(request_text) == expects[key]
-    #     else:
-    #         print key
-    #         with pytest.raises(expects[key]):
-    #             server.parse_request(request_text)
 
 
 def test_functional_ok(client, requests):
