@@ -7,22 +7,21 @@ RESPONSE_200 = (b"HTTP/1.1 200 OK\r\n"
                 b"Accept-Ranges: bytes\r\n"
                 b"\r\n"
                 b"Hello world!")
-RESPONSE = [
+RESPONSE = CRLF.join([
     b"HTTP/1.1 {code} {reason}",
     b"Content-Type: text/plain",
     CRLF,
-    b"{message}"]
+    b"{message}"])
 
 
 def response_ok():
     """Return a properly formatted HTTP 200 response."""
-    return RESPONSE_200
+    return RESPONSE.format(code=200, reason=b'OK', message=b'Hello World')
 
 
 def response_error(code, reason):
     """Return a properly formatted HTTP 500 response."""
-    response = CRLF.join(RESPONSE)
-    return response.format(code=code, reason=reason, message=b'')
+    return RESPONSE.format(code=code, reason=reason, message=b'')
 
 
 def verify_first_line(line):

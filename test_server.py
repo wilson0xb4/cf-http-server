@@ -71,7 +71,7 @@ def expects():
 def test_response_ok():
     response = server.response_ok().split(b'\r\n')
     assert b"HTTP/1.1 200 OK" in response[0]
-    assert b"Content-Type: text/html" in response
+    assert b"Content-Type: text/plain" in response
 
 
 def test_response_error():
@@ -119,6 +119,19 @@ def test_parse_request(requests, expects):
 
 def test_functional_ok(client, requests):
     request_text = server.CRLF.join(requests['good'])
+    client.sendall(request_text)
+    accum = []
+    while True:
+        response = client.recv(1024)
+        accum.append(response)
+        if len(response) < 1024:
+            break
+    response_str = b''.join(accum)
+    assert b"HTTP/1.1 200 OK" in response_str
+
+
+def test_functional_bad(client, requests):
+    request_text = server.CRLF.join(requests['bad'])
     client.sendall(request_text)
     accum = []
     while True:
