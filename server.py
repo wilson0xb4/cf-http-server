@@ -82,9 +82,9 @@ def start_server():
     a valid resonpse, logging requests to standard out.
     """
     server = config_server()
-    accum = []
 
     while True:
+        accum = []
         try:
             conn, addr = server.accept()
             while True:

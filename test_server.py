@@ -5,13 +5,19 @@ import time
 from multiprocessing import Process
 
 
-@pytest.yield_fixture
-def server_process():
+@pytest.fixture()
+def server_process(request):
     process = Process(target=server.start_server)
     process.daemon = True
     process.start()
     time.sleep(0.1)
-    yield process
+
+    def cleanup():
+        process.terminate()
+
+    request.addfinalizer(cleanup)
+
+    return process
 
 
 @pytest.fixture()
@@ -140,4 +146,4 @@ def test_functional_bad(client, requests):
         if len(response) < 1024:
             break
     response_str = b''.join(accum)
-    assert b"HTTP/1.1 200 OK" in response_str
+    assert b"HTTP/1.1 400 Bad Request" in response_str
