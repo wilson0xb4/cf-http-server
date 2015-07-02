@@ -4,6 +4,8 @@ import server
 import time
 from multiprocessing import Process
 
+CRLF = b'\r\n'
+
 
 @pytest.fixture(scope='session')
 def server_process(request):
@@ -35,7 +37,7 @@ def requests():
         'good': [
             b'GET / HTTP/1.1',
             b'Host: www.example.com',
-            server.CRLF
+            CRLF
         ],
         'bad': [
             b'Hi there'
@@ -45,19 +47,19 @@ def requests():
             b'Host: www.longerexample.com:80',
             b'Content-Type: text/xml; charset=utf-8',
             b'Content-Length: 100',
-            server.CRLF
+            CRLF
         ],
         'post': [
             b'POST / HTTP/1.1',
             b'Host: www.example.com',
-            server.CRLF
+            CRLF
         ],
         'wrong_http': [
             b'GET / HTTP/1.0',
             b'Host: www.example.com',
-            server.CRLF
+            CRLF
         ],
-        }
+    }
     return requests
 
 
@@ -74,7 +76,10 @@ def expects():
 
 
 def test_response_ok():
-    response = server.response_ok().split(b'\r\n')
+    response = server.response_ok(
+        b'',
+        b'text/plain'
+    ).split(b'\r\n')
     assert b"HTTP/1.1 200 OK" in response[0]
     assert b"Content-Type: text/plain" in response
 
@@ -94,35 +99,35 @@ def test_response_error():
 
 
 def test_parse_request_good(requests, expects):
-    request_text = server.CRLF.join(requests['good'])
+    request_text = CRLF.join(requests['good'])
     assert server.parse_request(request_text) == expects['good']
 
 
 def test_parse_request_bad(requests, expects):
-    request_text = server.CRLF.join(requests['bad'])
+    request_text = CRLF.join(requests['bad'])
     with pytest.raises(expects['bad']):
         server.parse_request(request_text)
 
 
 def test_parse_request_long(requests, expects):
-    request_text = server.CRLF.join(requests['long'])
+    request_text = CRLF.join(requests['long'])
     assert server.parse_request(request_text) == expects['long']
 
 
 def test_parse_request_post(requests, expects):
-    request_text = server.CRLF.join(requests['post'])
+    request_text = CRLF.join(requests['post'])
     with pytest.raises(expects['post']):
         server.parse_request(request_text)
 
 
 def test_parse_request_wrong_http(requests, expects):
-    request_text = server.CRLF.join(requests['wrong_http'])
+    request_text = CRLF.join(requests['wrong_http'])
     with pytest.raises(expects['wrong_http']):
         server.parse_request(request_text)
 
 
 def test_functional_ok(client, requests):
-    request_text = server.CRLF.join(requests['good'])
+    request_text = CRLF.join(requests['good'])
     client.sendall(request_text)
     accum = []
     while True:
@@ -135,7 +140,7 @@ def test_functional_ok(client, requests):
 
 
 def test_functional_bad(client, requests):
-    request_text = server.CRLF.join(requests['bad'])
+    request_text = CRLF.join(requests['bad'])
     client.sendall(request_text)
     accum = []
     while True:

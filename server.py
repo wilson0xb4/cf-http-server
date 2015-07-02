@@ -29,7 +29,7 @@ def response_error(code, reason):
         code=code,
         reason=reason,
         content_type=b'text/plain',
-        content_length=b'',
+        content_length=b'0',
         message=b'')
 
 
@@ -89,8 +89,6 @@ def parse_request(rq):
             header_dict[temp].append(line)
 
     verify_host(header_dict)
-
-    body, content_type = resolve_uri(uri)
 
     return first_line_parts[1]
 
