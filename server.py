@@ -94,6 +94,9 @@ def parse_request(rq):
 
 
 def resolve_uri(uri):
+    if '..' in uri:
+        raise ValueError(b'Forbidden')
+
     p = Path(WEB_ROOT + uri)
     if not p.exists():
         raise LookupError(b'Not Found')
