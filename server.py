@@ -105,7 +105,10 @@ def resolve_uri(uri):
     content_type = b''
     if p.is_dir():
         gen = p.iterdir()
-        body = CRLF.join([str(item) for item in gen])
+        html_start = b"<html><head></head><body><ul>"
+        body = CRLF.join([b"<li>{item}</li>".format(item) for item in gen])
+        html_end = b"</ul></body></html>"
+        body = "".join([html_start, body, html_end])
         content_type = b'text/html'
 
     else:
