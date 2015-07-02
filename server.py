@@ -112,7 +112,7 @@ def resolve_uri(uri):
         content_type = b'text/html'
 
     else:
-        with p.open() as f:
+        with p.open('rb') as f:
             body = f.read()
             content_type = mimetypes.guess_type(uri)[0]
 
