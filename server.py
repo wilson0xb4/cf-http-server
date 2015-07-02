@@ -1,4 +1,6 @@
 import socket
+from pathlib import Path
+import mimetypes
 
 CRLF = b'\r\n'
 ADDR = ('127.0.0.1', 8002)
@@ -12,6 +14,7 @@ RESPONSE = CRLF.join([
     b"Content-Type: text/plain",
     CRLF,
     b"{message}"])
+WEB_ROOT = b'./webroot'
 
 
 def response_ok():
@@ -81,8 +84,31 @@ def parse_request(rq):
 
     verify_host(header_dict)
 
+    uri = first_line_parts[1]
+    body, content_type = resolve_uri(uri)
+
     # get uri from first line of request
     return first.split()[1]
+
+
+def resolve_uri(uri):
+    p = Path(WEB_ROOT + uri)
+    if not p.exists():
+        raise LookupError(b'Not Found')
+
+    body = b''
+    content_type = b''
+    if p.is_dir():
+        gen = p.iterdir()
+        body = CRLF.join([str(item) for item in gen])
+        content_type = b'text/html'
+
+    else:
+        with p.open() as f:
+            body = f.read()
+            content_type = mimetypes.guess_type(uri)[0]
+
+    return body, content_type
 
 
 def config_server():
@@ -129,6 +155,8 @@ def start_server():
                 response = response_error(400, e.message)
             except ValueError as e:
                 response = response_error(403, e.message)
+            except LookupError as e:
+                response = response_error(404, e.message)
 
             conn.sendall(response)
 
