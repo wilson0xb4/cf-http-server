@@ -24,14 +24,14 @@ def response_error(code, reason):
     return RESPONSE.format(code=code, reason=reason, message=b'')
 
 
-def verify_first_line(line):
+def verify_first_line(parts):
     """Verify that the first line of the request is a GET request and
     using HTTP/1.1
     """
 
-    if b'GET' not in line:
+    if parts[0] != b'GET':
         raise NotImplementedError(b"Method Not Allowed")
-    if b'HTTP/1.1' not in line:
+    if parts[2] != b'HTTP/1.1':
         raise ValueError(b"Forbidden")
 
 
@@ -63,11 +63,13 @@ def parse_request(rq):
     """
 
     verify_blank_line(rq)
+    header_and_body = rq.split(CRLF + CRLF, 1)
     header_dict = {}
-    lines = rq.split(CRLF)
+    lines = header_and_body[0].split(CRLF)
     first = lines[0]
+    first_line_parts = first.split()
+    verify_first_line(first_line_parts)
     lines = lines[1:]
-    verify_first_line(first)
     temp = ''
     for line in lines:
         if b':' in line:
