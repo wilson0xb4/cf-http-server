@@ -4,27 +4,33 @@ import mimetypes
 
 CRLF = b'\r\n'
 ADDR = ('127.0.0.1', 8002)
-RESPONSE_200 = (b"HTTP/1.1 200 OK\r\n"
-                b"Content-Type: text/html\r\n"
-                b"Accept-Ranges: bytes\r\n"
-                b"\r\n"
-                b"Hello world!")
 RESPONSE = CRLF.join([
     b"HTTP/1.1 {code} {reason}",
-    b"Content-Type: text/plain",
-    CRLF,
+    b"Content-Type: {content_type}",
+    b"Content-Length: {content_length}",
+    b"",
     b"{message}"])
 WEB_ROOT = b'./webroot'
 
 
-def response_ok():
+def response_ok(body, content_type):
     """Return a properly formatted HTTP 200 response."""
-    return RESPONSE.format(code=200, reason=b'OK', message=b'Hello World')
+    return RESPONSE.format(
+        code=200,
+        reason=b'OK',
+        content_type=content_type,
+        content_length=len(body),
+        message=body)
 
 
 def response_error(code, reason):
     """Return a properly formatted HTTP 500 response."""
-    return RESPONSE.format(code=code, reason=reason, message=b'')
+    return RESPONSE.format(
+        code=code,
+        reason=reason,
+        content_type=b'text/plain',
+        content_length=b'',
+        message=b'')
 
 
 def verify_first_line(parts):
@@ -84,11 +90,9 @@ def parse_request(rq):
 
     verify_host(header_dict)
 
-    uri = first_line_parts[1]
     body, content_type = resolve_uri(uri)
 
-    # get uri from first line of request
-    return first.split()[1]
+    return first_line_parts[1]
 
 
 def resolve_uri(uri):
@@ -143,10 +147,12 @@ def start_server():
             request_text = b''.join(accum)
             print request_text
 
-            response = response_ok()
+            response = b''
 
             try:
-                parse_request(request_text)
+                uri = parse_request(request_text)
+                body, content_type = resolve_uri(uri)
+                response = response_ok(body, content_type)
             except SyntaxError as e:
                 response = response_error(400, e.message)
             except NotImplementedError as e:
