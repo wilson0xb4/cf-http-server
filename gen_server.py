@@ -38,6 +38,7 @@ def start_server():
             except LookupError as e:
                 response = server.response_error(404, e.message)
 
+
             conn.sendall(response)
 
             conn.close()
@@ -50,8 +51,8 @@ def start_gen_server():
     from gevent.server import StreamServer
     from gevent.monkey import patch_all
     patch_all()
-    gserver = StreamServer(('127.0.0.1', 10000), start_server)
-    print('Starting echo server on port 10000')
+    gserver = StreamServer(server.ADDR, start_server)
+    print('Starting gen server on port 8002')
     gserver.serve_forever()
 
 
