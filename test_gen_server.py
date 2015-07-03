@@ -11,7 +11,7 @@ CRLF = b'\r\n'
 
 @pytest.fixture(scope='session')
 def server_process(request):
-    process = Process(target=gen_server.start_server)
+    process = Process(target=gen_server.start_gen_server)
     process.daemon = True
     process.start()
     time.sleep(0.1)

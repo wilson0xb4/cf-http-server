@@ -128,7 +128,7 @@ def config_server():
     server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
     server.bind(ADDR)
-    server.listen(1)
+    server.listen(10)
     return server
 
 

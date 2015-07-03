@@ -1,22 +1,20 @@
 import server
 
 
-def start_server():
+def start_server(conn, addr):
     """Start server and begin loop to accept requests.
 
     While in loop, server will respond to appropriate HTTP requests with
     a valid resonpse, logging requests to standard out.
     """
-    socket = server.config_server()
 
     while True:
         accum = []
         try:
-            conn, addr = socket.accept()
             while True:
-                request = conn.recv(1024)
+                request = conn.recv(64)
                 accum.append(request)
-                if len(request) < 1024:
+                if len(request) < 64:
                     break
             request_text = b''.join(accum)
             print request_text
