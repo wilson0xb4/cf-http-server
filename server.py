@@ -104,9 +104,10 @@ def resolve_uri(uri):
     body = b''
     content_type = b''
     if p.is_dir():
+        # import pdb; pdb.set_trace()
         gen = p.iterdir()
         html_start = b"<html><head></head><body><ul>"
-        body = CRLF.join([b"<li>{item}</li>".format(item) for item in gen])
+        body = CRLF.join([b"<li>{item}</li>".format(item=item) for item in gen])
         html_end = b"</ul></body></html>"
         body = "".join([html_start, body, html_end])
         content_type = b'text/html'
