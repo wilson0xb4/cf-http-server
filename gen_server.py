@@ -46,10 +46,14 @@ def start_server():
             break
 
 
-if __name__ == '__main__':
+def start_gen_server():
     from gevent.server import StreamServer
     from gevent.monkey import patch_all
     patch_all()
     gserver = StreamServer(('127.0.0.1', 10000), start_server)
     print('Starting echo server on port 10000')
     gserver.serve_forever()
+
+
+if __name__ == '__main__':
+    start_gen_server()
