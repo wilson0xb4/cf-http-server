@@ -1,0 +1,5 @@
+gevent==1.0.2
+greenlet==0.4.7
+pathlib==1.0.1
+py==1.4.26
+pytest==2.7.0
